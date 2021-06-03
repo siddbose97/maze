@@ -29,5 +29,11 @@ class cell:
             neighbor.walls[neighborWall] = False #use corresponding wall to remove accordingly
         
             
+class maze:
+    #initialize a maze as cells in rows and columns based on input values
+    #initialize by taking input row and column and then using 0,0 as a starting cell
 
+    
+
+    pass
 

@@ -1,0 +1,37 @@
+Randomized DFS Logic
+
+1. Called recursive backtracker
+2. Initial set up is a grid of cells. Each cell has 4 walls
+    a. Starting from a random cell, the algorithm chooses an UNVISITED, RANDOM neighboring cell
+    b. The algorithm then removes the wall between the two cells, marks the neighboring cell as VISITED,
+    and adds it to the stack of VISITED cells
+    c. This process continues until a cell is found with no UNVISITED neighbors
+    d. At this point all cells are popped off the stack until the last cell with UNVISITED neighbors is found.
+3. Continue through the next unvisited cell
+4. Once every cell is visited, the maze is complete
+
+Notes:
+1. If implemented recursively, due to the low branching factor and consequent high depth factor of DFS, it can cause stack overflow
+2. Iterative method can allow for the information to be saved in the maze instead of the stack
+
+Recursive Implementation
+1. Use a random cell as initial 
+2. Mark the current cell as visited
+3. If the current cell has unvisited neighbors
+    a. Choose one unvisited neighbor randomly
+    b. Remove the wall between the neighbor and the cell
+    c. Call the function recursively for the neighboring cell
+
+Repeat this for every cell in the grid
+
+Interative Implementation
+1. Choose a random cell as initial
+2. Push the initial cell to the VISITED stack
+3. While the stack is not empty
+    a. pop the top cell from the stack
+    b. set the top cell to be current cell
+    c. if the current cell has unvisited neighbors
+        1. push current cell to stack
+        2. randomly choose an unvisited neighbor
+        3. remove the wall between the current and neighbor cell
+        4. add the neighbor to the VISITED stack

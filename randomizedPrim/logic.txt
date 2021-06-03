@@ -1,0 +1,16 @@
+Randomized Prim's Algorithm Logic
+
+Base Version:
+1. Start with a grid consisting only of walls
+2. Pick a cell randomly, set the cell to "cell" and add "cell"s walls to the wall list
+3. While the wall list is not empty
+    a. pick a random wall in the wall list
+    b. if either of the cells which are divided by the wall are unvisited (either depends on which side its approached from)
+     make the wall a passage and mark the next cell as visited and add its walls to the list
+    c. check how many cells have been visited around a wall (Cannot be more than 2)
+    d. remove the wall from the wall list
+
+
+Simplified Version:
+1. Instead of keeping track of how many neighbors have been visited, just randomly visit cells that neighbor an already visited cell
+2. This will lead to more branching
