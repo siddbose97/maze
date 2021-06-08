@@ -60,16 +60,16 @@ def checkNumVisited(coord, row, col, maze):
 
     for elements in typeOfCell:
         if cellsAroundWall[elements] == True:
-            if elements == "N" and maze[x+1][y] == "c":
+            if x != row-1 and elements == "N" and maze[x+1][y] == "c":
                 numVisited +=1 
                 # print("N")
-            if elements == "S" and maze[x-1][y] == "c":
+            if x != 0 and elements == "S" and maze[x-1][y] == "c":
                 numVisited +=1 
                 # print("S")
-            if elements == "E" and maze[x][y-1] == "c":
+            if y != 0 and elements == "E" and maze[x][y-1] == "c":
                 numVisited +=1 
                 # print("E")
-            if elements == "W" and maze[x][y+1] == "c":
+            if y != col-1 and elements == "W" and maze[x][y+1] == "c":
                 numVisited +=1 
                 # print("W")
     
@@ -81,8 +81,8 @@ def mazeCreator(row,col):
     maze = gridCreator(row,col)
     # startingRow = random.randrange(row)-1
     # startingCol = random.randrange(col)-1
-    startingRow = 0
-    startingCol = 0
+    startingRow = 2
+    startingCol = 1
 
     maze[startingRow][startingCol] = 'c'
     listOfWalls = []
