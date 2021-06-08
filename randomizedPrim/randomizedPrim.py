@@ -29,9 +29,9 @@ def checkBorder(x,y,row,col):
     if x == (row-1):
         validCoord["S"] = False
     if y == 0:
-        validCoord["E"] = False
-    if y == (col-1):
         validCoord["W"] = False
+    if y == (col-1):
+        validCoord["E"] = False
     
     return(validCoord)
 
@@ -81,19 +81,18 @@ def mazeCreator(row,col):
     maze = gridCreator(row,col)
     # startingRow = random.randrange(row)-1
     # startingCol = random.randrange(col)-1
-    startingRow = 2
-    startingCol = 2
+    startingRow = 0
+    startingCol = 0
 
     maze[startingRow][startingCol] = 'c'
     listOfWalls = []
     startingCellCoord = (startingRow,startingCol)
     startingCellWalls = checkBorder(startingRow,startingCol,row,col)
-    
+    print(startingCellWalls)
     for elements in typeOfWall:
         if startingCellWalls[elements] == True:
             listOfWalls.append(retWallCoord(startingCellCoord,elements))
     
-    print(listOfWalls)
 
     while len(listOfWalls)>0:
         wallInQuestion = listOfWalls.pop()
