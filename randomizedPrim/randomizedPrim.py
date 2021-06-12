@@ -81,8 +81,8 @@ def mazeCreator(row,col):
     maze = gridCreator(row,col)
     # startingRow = random.randrange(row)-1
     # startingCol = random.randrange(col)-1
-    startingRow = 2
-    startingCol = 1
+    startingRow = 0
+    startingCol = 0
 
     maze[startingRow][startingCol] = 'c'
     listOfWalls = []
@@ -95,10 +95,19 @@ def mazeCreator(row,col):
     
 
     while len(listOfWalls)>0:
-        wallInQuestion = listOfWalls.pop()
+        wallInQuestion = listOfWalls.pop(random.randrange(0,len(listOfWalls)))
+        cellsAroundWall = checkBorder(wallInQuestion[0],wallInQuestion[1],row,col)
+        for elements in typeOfWall:
+            cellAroundWallCoord = retWallCoord((wallInQuestion[0], wallInQuestion[1]),elements)
+            if cellsAroundWall[elements] == True and maze[cellAroundWallCoord[0]][cellAroundWallCoord[1]] == 'w':
+                listOfWalls.insert(0,cellAroundWallCoord)
+        # print(listOfWalls)
         #wallInQuestion = (0,1,"N")
-        if checkNumVisited(wallInQuestion, row, col, maze) <=2:
+        if checkNumVisited(wallInQuestion, row, col, maze) < 2:
             maze[wallInQuestion[0]][wallInQuestion[1]]= 'c'
+        # printGrid(maze)
+        # print()
+
 
     
 
@@ -110,4 +119,7 @@ def mazeCreator(row,col):
 
 
 
-mazeCreator(5,5)
+mazeCreator(6,6)
+
+
+# and ((cellAroundWallCoord,"N") or (cellAroundWallCoord,"E") or (cellAroundWallCoord,"S") or (cellAroundWallCoord,"W")) not in listOfWalls
