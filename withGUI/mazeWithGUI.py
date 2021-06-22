@@ -84,50 +84,64 @@ class Cell:
         layout.create_rectangle(x+5, y+5, x+divider-5, y+divider-5, fill='red', outline='')
         gui.update()
 
-#=================
 
-    def check_neighbors(self, s=False):
-        neighbors = []
+    def checkNeighbors(self, s=False):
+        listOfNeighbors = []
 
-        if not edge(self.xCoord-1, self.yCoord):
-            top = maze[self.xCoord-1][self.yCoord]
-            if not top.visited:
-                neighbors.append(top)
+        #check if north is out of bounds
+        if checkEdge(self.xCoord-1, self.yCoord) == False:
+            north = maze[self.xCoord-1][self.yCoord]
+            if north.visited == False:
+                listOfNeighbors.append(north)
 
-        if not edge(self.xCoord, self.yCoord+1):
-            right = maze[self.xCoord][self.yCoord+1]
-            if not right.visited:
-                neighbors.append(right)
-        if not edge(self.xCoord+1, self.yCoord):
-            bottom = maze[self.xCoord+1][self.yCoord]
-            if not bottom.visited:
-                neighbors.append(bottom)
-        if not edge(self.xCoord, self.yCoord-1):
-            left = maze[self.xCoord][self.yCoord-1]
-            if not left.visited:
-                neighbors.append(left)
+        #check if east is out of bounds
+        if checkEdge(self.xCoord, self.yCoord+1) == False:
+            east = maze[self.xCoord][self.yCoord+1]
+            if east.visited == False:
+                listOfNeighbors.append(east)
+        
+        #check if south is out of bounds
+        if checkEdge(self.xCoord+1, self.yCoord) == False:
+            south = maze[self.xCoord+1][self.yCoord]
+            if south.visited == False:
+                listOfNeighbors.append(south)
+        
+        #check if west is out of bounds
+        if checkEdge(self.xCoord, self.yCoord-1) == False:
+            west = maze[self.xCoord][self.yCoord-1]
+            if west.visited == False:
+                listOfNeighbors.append(west)
 
-        if len(neighbors) > 0:
-            return neighbors[randrange(len(neighbors))]
+        #assuming list of neighbors isnt empty we go to the next neighbor randomly, if empty return false
+        if len(listOfNeighbors) > 0:
+            nextNeighbor = randrange(len(listOfNeighbors))
+            return listOfNeighbors[nextNeighbor]
         else:
             return False
 
 
-def edge(i, j):
-    if i<0 or j<0 or i>= rows or j>= cols:
+def checkEdge(i, j):
+    #if within the maze then return False (not edge) else True
+    if i >= 0 and j >= 0 and i < rows and j < cols:
+        return False
+    else:
         return True
-    return False
+    
 
 
 def setup():
+    #was facing an error when not using global keyword since otherwise we cannot modify within the function
     global currentCell
 
     for i in range(rows):
         for j in range(cols):
             maze[i][j] = Cell(i, j)
 
-    currentCell = maze[0][0]
+    #setting starting cell as top left and then mark it as visited
+    currentCell = maze[0][0] 
     currentCell.visited = True
+
+#=================
 
 
 def draw():
@@ -142,7 +156,7 @@ def draw():
         currentCell.displayVisited()
 
         # STEP 1
-        next_cell = currentCell.check_neighbors()
+        next_cell = currentCell.checkNeighbors()
         if next_cell:
 
             # STEP 2
