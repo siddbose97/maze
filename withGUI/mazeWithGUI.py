@@ -30,9 +30,6 @@ gui.title("Randomized Maze Generator")
 layout = Canvas(gui,width=x, height=y, bg='pink')
 layout.pack()
 
-
-
-
 class Cell:
 
     def __init__(self, xCoord, yCoord):
@@ -57,13 +54,12 @@ class Cell:
         x = self.xCoord*divider
         y = self.yCoord*divider
 
-        #use create_line functionto to draw lines for each cell
+        #use create_line function to to draw lines for each cell
         #coordinates reflect start and end of a line
         self.topLine = layout.create_line(x, y, x+divider, y, fill="black", width = 2)
         self.rightLine = layout.create_line(x+divider, y, x+divider, y+divider, fill="black", width = 2)
         self.bottomLine = layout.create_line(x, y+divider, x+divider, y+divider, fill="black", width = 2)
         self.leftLine = layout.create_line(x, y, x, y+divider, fill="black", width = 2)
-        
 
     def displayVisited(self):
         #initializing coordinates of the cell
@@ -83,6 +79,16 @@ class Cell:
         #since it is a moving and temporary cell (currentCell) no need to set a variable
         layout.create_rectangle(x+5, y+5, x+divider-5, y+divider-5, fill='red', outline='')
         gui.update()
+
+    def highlightBacktrack(self):
+        #initializing coordinates of the cell
+        x = self.xCoord*divider
+        y = self.yCoord*divider
+        
+        #since it is a moving and temporary cell (currentCell) no need to set a variable
+        layout.create_rectangle(x+5, y+5, x+divider-5, y+divider-5, fill='black', outline='')
+        gui.update()
+
 
 
     def checkNeighbors(self, s=False):
@@ -141,99 +147,214 @@ def setup():
     currentCell = maze[0][0] 
     currentCell.visited = True
 
-#=================
 
 
 def draw():
+    #reference the global currentCell to be able to display from inside function
     global currentCell
 
-    for i in range(len(maze)):
-        for j in range(len(maze[0])):
-            maze[i][j].display()
+    for i in range(rows): #row times
+        for j in range(cols): #cols time
+            maze[i][j].display() #display the referenced cell
 
+    #continuous loop until stack is empty, then break
     while True:
+        #for the current cell 1st establish the moving blinker, and secondly mark as visited (can use diff color later)
         currentCell.highlight()
         currentCell.displayVisited()
 
-        # STEP 1
-        next_cell = currentCell.checkNeighbors()
-        if next_cell:
+        #set the nextCell to to be a randomly chosen neighbor of the current cell,
+        #there may not be any neighbors which havent been visited
+        nextCell = currentCell.checkNeighbors()
 
-            # STEP 2
+        if nextCell: #if a nextCell exists
+            #in the display, remove the walls between the current and next cell
+            remove_walls(currentCell, nextCell) 
+
+            #add the current cell to the stack of all cells and then the stack to help solve later on
             stackOfCells.append(currentCell)
             solvingStack.append(currentCell)
 
-            # STEP 3
-            remove_walls(currentCell, next_cell) #######
-
-            # STEP 4
-            currentCell = next_cell
+            #set nextCell to the current cell and mark it now as visited
+            currentCell = nextCell
             currentCell.visited = True
-
+            
+        #if no neighbors for the given cell, then as long as the list of cells has more cells, then pop one off
+        #set that cell to be visited
         elif len(stackOfCells) > 0:
             currentCell = stackOfCells.pop()
             visitedStack.append(currentCell)
+        #if no cells in the stack then break out of loop
         else:
             break
 
 
-def remove_walls(c, n):
-    y = c.xCoord- n.xCoord
-    x = c.yCoord - n.yCoord
-    if x == 0:
-        if y == -1:
-            layout.delete(c.rightLine)
-            layout.delete(n.leftLine)
-            c.walls[1] = False
-            n.walls[3] = False
-            gui.update()
-        elif y == 1:
-            layout.delete(c.leftLine)
-            layout.delete(n.rightLine)
-            c.walls[3] = False
-            n.walls[1] = False
+def remove_walls(curr, next):
+    #initialize vertical as the difference between next and current xCoord
+    #initialize horizontal as the difference between next and currenct yCoord
+    vertical = curr.xCoord - next.xCoord
+    horizontal = curr.yCoord - next.yCoord
+
+    #if we are on the same row
+    if horizontal == 0:
+        if vertical == -1: #if we are moving right, remove the right wall of current and left wall of next
+            layout.delete(curr.rightLine)
+            layout.delete(next.leftLine)
+            curr.walls[1] = False
+            next.walls[3] = False
             gui.update()
 
-    if y == 0:
-        if x == -1:
-            layout.delete(c.bottomLine)
-            layout.delete(n.topLine)
-            c.walls[2] = False
-            n.walls[0] = False
+        elif vertical == 1: #if we are moving left, remove the left wall of current and right wall of next
+            layout.delete(curr.leftLine)
+            layout.delete(next.rightLine)
+            curr.walls[3] = False
+            next.walls[1] = False
             gui.update()
-        elif x == 1:
-            layout.delete(c.topLine)
-            layout.delete(n.bottomLine)
-            c.walls[0] = False
-            n.walls[2] = False
+    
+    #if we are on the same column
+    if vertical == 0:
+        if horizontal == -1: #if we are moving down, remove the bottom wall of current and top wall of next
+            layout.delete(curr.bottomLine)
+            layout.delete(next.topLine)
+            curr.walls[2] = False
+            next.walls[0] = False
             gui.update()
-            #print(c.__dict__)
+
+        elif horizontal == 1: #if we are moving up, remove the top wall of current and bottom wall of next
+            layout.delete(curr.topLine)
+            layout.delete(next.bottomLine)
+            curr.walls[0] = False
+            next.walls[2] = False
+            gui.update()
+
+#=================
 
 def draw_solve():
     global currentCell
-    solvingStack.reverse()
-    visitedStack.reverse()
-    currentCell = solvingStack.pop()
+   
+    currentCell = maze[0][0]
+    secondCell = maze[0][1]
+    stackOfCells = []
 
-    while True:
-        xCoord= currentCell.xCoord
-        j = currentCell.yCoord
-        if xCoord== rows-1 and j == cols-1:
+    dictionary = {}
+    for i in range(rows):
+        for j in range(cols):
+            dictionary[(i,j)] = False
+
+    xCoord = currentCell.xCoord
+    yCoord = currentCell.yCoord
+    
+    dictionary[(xCoord,yCoord)] == True
+    stackOfCells.append(currentCell)
+
+    # secondCell.highlight()
+    # gui.update()
+
+    # return
+    while stackOfCells:
+        neighbors = []
+        currentCell = stackOfCells.pop()
+        if currentCell.yCoord == rows-1 and currentCell.xCoord == cols-1:
             currentCell.highlight()
-            break
+            return
+        if currentCell.yCoord == 0: # if top row, then cannot have north
+            if currentCell.xCoord != 0: #if not top left corner, can check west
+                if currentCell.walls[3] == False:
+                    neighbors.append(maze[currentCell.xCoord-1][currentCell.yCoord])
+            if currentCell.xCoord != cols-1: #if not top right corner, can check east
+                if currentCell.walls[1] == False:
+                    neighbors.append(maze[currentCell.xCoord+1][currentCell.yCoord])
+            
+            if currentCell.walls[2] == False: #all top row can check south
+                neighbors.append(maze[currentCell.xCoord][currentCell.yCoord+1])    
 
-        if not currentCell.chosen:
-            currentCell.highlight()
-            currentCell.chosen = True
-            currentCell = solvingStack.pop()
-            gui.update()
-            time.sleep(0.1)
+        elif currentCell.yCoord == rows-1: # if bottom row, then cannot have south
+            if currentCell.xCoord != 0: #if not bottom left corner, can check west
+                if currentCell.walls[3] == False:
+                    neighbors.append(maze[currentCell.xCoord-1][currentCell.yCoord])
+            if currentCell.xCoord != cols-1: #if not bottom right corner, can check east
+                if currentCell.walls[1] == False:
+                    neighbors.append(maze[currentCell.xCoord+1][currentCell.yCoord])
+            
+            
+            if currentCell.walls[0] == False: #all bottom row can check north
+                neighbors.append(maze[currentCell.xCoord][currentCell.yCoord-1]) 
+        
+        elif currentCell.yCoord > 0 and currentCell.yCoord < rows-1: #all rows in between can check north and south
+            
+            if currentCell.walls[0] == False: #all rows can check north
+                neighbors.append(maze[currentCell.xCoord][currentCell.yCoord-1]) 
+            if currentCell.walls[2] == False: #all rows can check south
+                    neighbors.append(maze[currentCell.xCoord][currentCell.yCoord+1]) 
+            
+            if currentCell.xCoord != 0: #if not left edge, can check west
+                if currentCell.walls[3] == False:
+                    neighbors.append(maze[currentCell.xCoord-1][currentCell.yCoord])
+            if currentCell.yCoord != cols-1: #if not right edge, can check east
+                if currentCell.walls[1] == False:
+                    neighbors.append(maze[currentCell.xCoord+1][currentCell.yCoord])
+        
+        # for elements in neighbors:
+        #     print((elements.xCoord,elements.yCoord))
+        
+       
+        while neighbors:
+            randomCell = neighbors[randrange(len(neighbors))]
+            for elements in neighbors:
+                print((elements.xCoord,elements.yCoord))
+            print("Coords are: " + str((randomCell.xCoord,randomCell.yCoord)))
+            print ("Visited?: " + str(dictionary[(randomCell.xCoord,randomCell.yCoord)]))
 
-        elif currentCell.chosen:
-            currentCell.displayVisited()
-            currentCell = visitedStack.pop()
-            gui.update()
-            time.sleep(0.1)
+            
+            if dictionary[(randomCell.xCoord,randomCell.yCoord)] == False:
+                stackOfCells.append(currentCell)
+                stackOfCells.append(randomCell)
+                dictionary[(randomCell.xCoord,randomCell.yCoord)] = True
+                currentCell.highlight()
+                gui.update()
+                time.sleep(.1)
+                currentCell = randomCell #not so useful because we set it again at the top of the loop
+                break
+            else:
+                neighbors.remove(randomCell)
+                randomCell.highlight()
+                
+                
+
+
+            
+
+            
+
+    #at this point there exists a maze
+    #every cell has top, bottom, left and right lines as True or False in a list
+    #a neighbor is a cell in the vicinity without a wall in between aka (neighbor S and current N are both false) and not visited
+    
+    #for the current cell:
+    #   set dict(current cell) to true (done)
+    #   add current cell to stackofcells (done)
+    #   while the stackofcells is not empty:
+        #   find  valid neighbors of stackofcells.pop(), add them to neighbor list (no wall)
+        #   for all the neighbors:
+            #   if the dict(neighbor cell) == False
+            #       append current cell to stackofcells
+            #       append neighbor cell to stackofcells
+            #       highlight the neighbor cell and update GUI
+            #       set dictionary(neighbor cell) to True
+            #       set current cell to neighbor cell
+            #       break
+            #   else
+            #       remove the neighbor from the list
+    
+
+        
+        
+
+
+
+
+
+    
 
 if __name__ == '__main__':
     setup()
@@ -249,10 +370,8 @@ if __name__ == '__main__':
         b = layout.itemcget(currentCell.rectangle, "fill")
         print('B', b)
     d = layout.bind('<Button-1>', change)
-    print('I am bind d = ', d)
+
     Label(gui, text='Made by: Siddhartha Bose', fg='red', bg='white').pack(side=RIGHT)
-    print(len(solvingStack))
-    print(solvingStack)
-    print(len(visitedStack))
+  
 
     gui.mainloop()
