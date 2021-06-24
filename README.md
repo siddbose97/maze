@@ -3,4 +3,4 @@ Since a maze without a GUI isn't much fun I used TKinter and some guidance from 
 
 My Final solution as shown below is a DFS implementation of a maze generator that can be initialized as a square of any size.
 
-
+![](maze.gif)
