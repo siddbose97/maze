@@ -3,6 +3,7 @@
 from tkinter import *
 from random import randrange
 import time
+import colorFile
 
 #
 x = 400
@@ -20,6 +21,7 @@ for i in range(rows):
 
 #initializing stacks required to traverse through the maze
 currentCell = 0
+lastCell = 0
 stackOfCells = []
 solvingStack = []
 visitedStack = [] 
@@ -27,7 +29,7 @@ visitedStack = []
 #initialize the maze gui and the canvassing
 gui = Tk()
 gui.title("Randomized Maze Generator")
-layout = Canvas(gui,width=x, height=y, bg='pink')
+layout = Canvas(gui,width=x, height=y, bg='white')
 layout.pack()
 
 class Cell:
@@ -56,10 +58,10 @@ class Cell:
 
         #use create_line function to to draw lines for each cell
         #coordinates reflect start and end of a line
-        self.topLine = layout.create_line(x, y, x+divider, y, fill="black", width = 2)
-        self.rightLine = layout.create_line(x+divider, y, x+divider, y+divider, fill="black", width = 2)
-        self.bottomLine = layout.create_line(x, y+divider, x+divider, y+divider, fill="black", width = 2)
-        self.leftLine = layout.create_line(x, y, x, y+divider, fill="black", width = 2)
+        self.topLine = layout.create_line(x, y, x+divider, y, fill="black", width = 3)
+        self.rightLine = layout.create_line(x+divider, y, x+divider, y+divider, fill="black", width = 3)
+        self.bottomLine = layout.create_line(x, y+divider, x+divider, y+divider, fill="black", width = 3)
+        self.leftLine = layout.create_line(x, y, x, y+divider, fill="black", width = 3)
 
     def displayVisited(self):
         #initializing coordinates of the cell
@@ -68,7 +70,7 @@ class Cell:
 
         #for visited cells we create a small rectangle as we visit a given cell
         if self.visited == True:
-            self.rectangle = layout.create_rectangle(x+3, y+3, x+divider-3, y+divider-3, fill='pink', outline='')
+            self.rectangle = layout.create_rectangle(x+3, y+3, x+divider-3, y+divider-3, fill='white', outline='')
             gui.update()
 
     def highlight(self):
@@ -77,7 +79,7 @@ class Cell:
         y = self.yCoord*divider
         
         #since it is a moving and temporary cell (currentCell) no need to set a variable
-        layout.create_rectangle(x+5, y+5, x+divider-5, y+divider-5, fill='red', outline='')
+        layout.create_rectangle(x+3, y+3, x+divider-3, y+divider-3, fill='red', outline='')
         gui.update()
 
     def highlightBacktrack(self):
@@ -86,7 +88,8 @@ class Cell:
         y = self.yCoord*divider
         
         #since it is a moving and temporary cell (currentCell) no need to set a variable
-        layout.create_rectangle(x+5, y+5, x+divider-5, y+divider-5, fill='pink', outline='')
+        color = colorFile.COLORS[randrange(len(colorFile.COLORS))]
+        layout.create_rectangle(x+1, y+1, x+divider-1, y+divider-1, fill='pale green', outline='')
         gui.update()
 
 
@@ -229,7 +232,7 @@ def remove_walls(curr, next):
 
 #=================
 
-def draw_solve():
+def solve():
     global currentCell
    
     currentCell = maze[0][0]
@@ -321,9 +324,9 @@ def draw_solve():
                 # randomCell.highlight()
     
     for cell in stackOfCells:
-        cell.highlight()
+        cell.highlightBacktrack()
         gui.update()
-        time.sleep(.1)
+        time.sleep(.05)
         # print((cell.xCoord,cell.yCoord))
 
 
@@ -367,19 +370,13 @@ def draw_solve():
 if __name__ == '__main__':
     setup()
     draw()
-    button = Button(gui, text='Show Solve!', command=draw_solve).pack()
-
-    def change(event):
-        print('Yes!!')
-        a = layout.itemconfigure(currentCell.rectangle, fill='green')
-
-        layout.update()
-        gui.update()
-        b = layout.itemcget(currentCell.rectangle, "fill")
-        print('B', b)
-    d = layout.bind('<Button-1>', change)
-
+    start = layout.itemconfigure(maze[0][0].rectangle, fill='red')
+    end = layout.itemconfigure(maze[rows-1][cols-1].rectangle, fill='green')
     Label(gui, text='Made by: Siddhartha Bose', fg='red', bg='white').pack(side=RIGHT)
-  
+
+    layout.update()
+    gui.update()
+    
+    button = Button(gui, text='Show Correct Path', command=solve).pack()
 
     gui.mainloop()
