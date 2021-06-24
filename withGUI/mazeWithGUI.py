@@ -86,7 +86,7 @@ class Cell:
         y = self.yCoord*divider
         
         #since it is a moving and temporary cell (currentCell) no need to set a variable
-        layout.create_rectangle(x+5, y+5, x+divider-5, y+divider-5, fill='black', outline='')
+        layout.create_rectangle(x+5, y+5, x+divider-5, y+divider-5, fill='pink', outline='')
         gui.update()
 
 
@@ -255,8 +255,9 @@ def draw_solve():
         neighbors = []
         currentCell = stackOfCells.pop()
         if currentCell.yCoord == rows-1 and currentCell.xCoord == cols-1:
-            currentCell.highlight()
-            return
+            #currentCell.highlight()
+            stackOfCells.append(currentCell)
+            break
         if currentCell.yCoord == 0: # if top row, then cannot have north
             if currentCell.xCoord != 0: #if not top left corner, can check west
                 if currentCell.walls[3] == False:
@@ -310,16 +311,20 @@ def draw_solve():
                 stackOfCells.append(currentCell)
                 stackOfCells.append(randomCell)
                 dictionary[(randomCell.xCoord,randomCell.yCoord)] = True
-                currentCell.highlight()
-                gui.update()
-                time.sleep(.1)
+                # currentCell.highlight()
+                # gui.update()
+                # time.sleep(.1)
                 currentCell = randomCell #not so useful because we set it again at the top of the loop
                 break
             else:
                 neighbors.remove(randomCell)
-                randomCell.highlight()
-                
-                
+                # randomCell.highlight()
+    
+    for cell in stackOfCells:
+        cell.highlight()
+        gui.update()
+        time.sleep(.1)
+        # print((cell.xCoord,cell.yCoord))
 
 
             
@@ -345,6 +350,9 @@ def draw_solve():
             #       break
             #   else
             #       remove the neighbor from the list
+    
+
+        
     
 
         
